@@ -1,0 +1,11 @@
+/home/jrodas/Proyectos/c#/apirest/bin/Debug/netcoreapp2.1/apirest.deps.json
+/home/jrodas/Proyectos/c#/apirest/bin/Debug/netcoreapp2.1/apirest.runtimeconfig.json
+/home/jrodas/Proyectos/c#/apirest/bin/Debug/netcoreapp2.1/apirest.runtimeconfig.dev.json
+/home/jrodas/Proyectos/c#/apirest/bin/Debug/netcoreapp2.1/apirest.dll
+/home/jrodas/Proyectos/c#/apirest/bin/Debug/netcoreapp2.1/apirest.pdb
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.csprojAssemblyReference.cache
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.csproj.CoreCompileInputs.cache
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.AssemblyInfoInputs.cache
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.AssemblyInfo.cs
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.dll
+/home/jrodas/Proyectos/c#/apirest/obj/Debug/netcoreapp2.1/apirest.pdb
