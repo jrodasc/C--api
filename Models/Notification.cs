@@ -5,12 +5,7 @@ using Newtonsoft.Json;
 
 namespace apirest.Models
 {
-    public class Message{
-        
-
-        
-        public List<Notification> Notification { get; set; }
-    }
+    
 
     public class Notification
     {

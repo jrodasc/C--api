@@ -11,22 +11,63 @@ using System.Data;
 using Newtonsoft.Json.Schema;
 using System.Threading;
 
+
 namespace apirest
 {
     class Program
     {
        static string url = "http://services.fasten.com.mx/";
+       static HttpClient client = new HttpClient();
         static void Main(string[] args)
         {
-            //GetRequest("http://services.fasten.com.mx/api/contenido");
-            //PostRequest("http://ptsv2.com/t/m9v0g-1542909408/post");
-            //Creamos el delegado 
-           
-            RunAsync().GetAwaiter().GetResult();
+            Thread t = new Thread(new ThreadStart(ThreadProc));
+            t.Start();
             Console.ReadKey();
         }
-
+        public static void ThreadProc() {
+            RunAsync().GetAwaiter().GetResult();
+        }
+        
         static async Task RunAsync()
+        {
+            client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                //product = await GetRequest(url.PathAndQuery);
+                //solicitar informaciòn
+                Message datos = await GetRequest(url);
+                
+                //Enviar informaciòn
+                // Update the product
+                Console.WriteLine("<====POST====>...");
+                //product.Price = 80;
+                await PostRequest(datos);
+            }   
+            catch (Exception e)
+            {
+                DisplayException(e); 
+                throw; 
+            }finally 
+            { 
+                Console.WriteLine("Press <Enter> to exit the program."); 
+                Console.ReadLine(); 
+            }
+        }
+        private static void DisplayException(Exception ex) 
+        { 
+            Console.WriteLine("The application terminated with an error."); 
+            Console.WriteLine(ex.Message); 
+            while (ex.InnerException != null) 
+            { 
+                Console.WriteLine("\t* {0}", ex.InnerException.Message); 
+                ex = ex.InnerException; 
+            } 
+        } 
+
+        static async Task<Message> GetRequest(string url)
         {
             try 
             {    Message list = null;
@@ -42,7 +83,7 @@ namespace apirest
                     
                     if(response.IsSuccessStatusCode)
                     {
-                        string json = @"{
+                         string json = @"{
                                     'Notification': [
                                         {
                                         'id': '0',
@@ -53,16 +94,14 @@ namespace apirest
                                         'name': 'item 1'
                                         }
                                     ]
-                                    }";
-
+                    }";
                         list = JsonConvert.DeserializeObject<Message>(json);
                         foreach(var men in list.Notification.ToArray())
                         {
                             Console.WriteLine(men.name);   
                         }
-                       
                     }
-                   
+                   return list;
                 }
             }
             catch (Exception ex) 
@@ -70,40 +109,9 @@ namespace apirest
                 DisplayException(ex); 
                 throw; 
             } 
-            finally 
-            { 
-                Console.WriteLine("Press <Enter> to exit the program."); 
-                Console.ReadLine(); 
-            } 
+            
         }
-
-        private static void DisplayException(Exception ex) 
-        { 
-            Console.WriteLine("The application terminated with an error."); 
-            Console.WriteLine(ex.Message); 
-            while (ex.InnerException != null) 
-            { 
-                Console.WriteLine("\t* {0}", ex.InnerException.Message); 
-                ex = ex.InnerException; 
-            } 
-        } 
-
-        async static void GetRequest(string url)
-        {
-            using(HttpClient client = new HttpClient())
-            {
-                using(HttpResponseMessage response = await client.GetAsync(url))
-                {
-                    using(HttpContent content = response.Content)
-                    {
-                        string mycontent = await content.ReadAsStringAsync();
-                        HttpContentHeaders headers = content.Headers;
-                        Console.WriteLine(mycontent);
-                    }
-                }
-            }
-        }
-        async static void PostRequest(string url)
+        static async Task<Uri> PostRequest(Message mensaje)
         {
             IEnumerable<KeyValuePair<string,string> > queries = new List<KeyValuePair<string,string>>()
             {
@@ -111,18 +119,19 @@ namespace apirest
                 new KeyValuePair<string, string>("query1","jrodas")
             };
             HttpContent q = new FormUrlEncodedContent(queries);
-            using(HttpClient client = new HttpClient())
-            {
-                using(HttpResponseMessage response = await client.PostAsync(url,q))
-                {
-                    using(HttpContent content = response.Content)
+            
+                HttpResponseMessage response = await client.PostAsync(url,q);
+                
+                    /* using(HttpContent content = response.Content)
                     {
                         string mycontent = await content.ReadAsStringAsync();
                         HttpContentHeaders headers = content.Headers;
                         Console.WriteLine(mycontent);
-                    }
-                }
-            }
+                    }*/
+                    response.EnsureSuccessStatusCode();
+                    return response.Headers.Location;
+                
+            
         }
     }
 }
