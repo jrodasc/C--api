@@ -5,40 +5,88 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
 using apirest.Models;
+using System.Data;
+using Newtonsoft.Json.Schema;
+using System.Threading;
 
 namespace apirest
 {
     class Program
     {
+       static string url = "http://services.fasten.com.mx/";
         static void Main(string[] args)
         {
             //GetRequest("http://services.fasten.com.mx/api/contenido");
             //PostRequest("http://ptsv2.com/t/m9v0g-1542909408/post");
-            RunAsync("http://services.fasten.com.mx/").Wait();
+            //Creamos el delegado 
+           
+            RunAsync().GetAwaiter().GetResult();
             Console.ReadKey();
         }
 
-        static async Task RunAsync(string url)
+        static async Task RunAsync()
         {
-            using (var contenido = new HttpClient())
-            {
-                contenido.BaseAddress = new Uri(url);
-                contenido.DefaultRequestHeaders.Accept.Clear();
-                contenido.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.WriteLine("GET");
-                HttpResponseMessage response = await contenido.GetAsync("api/contenido");
-                if(response.IsSuccessStatusCode)
+            try 
+            {    Message list = null;
+                using (var contenido = new HttpClient())
                 {
-                    //Contenido list = await response.Content.ReadAsAsync<Taller>();
-                    string data = await response.Content.ReadAsStringAsync();
-                    
+                    contenido.BaseAddress = new Uri(url);
+                    contenido.Timeout = new TimeSpan(0, 2, 0);  //2 minutes
+                    contenido.DefaultRequestHeaders.Accept.Clear();
+                    contenido.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    //Console.WriteLine("{0}\t{1}\t", list);
+                    Console.WriteLine("GET");
+                    HttpResponseMessage response = await contenido.GetAsync("api/contenido");
+                    
+                    if(response.IsSuccessStatusCode)
+                    {
+                        string json = @"{
+                                    'Notification': [
+                                        {
+                                        'id': '0',
+                                        'name': 'item 0'
+                                        },
+                                        {
+                                        'id': '1',
+                                        'name': 'item 1'
+                                        }
+                                    ]
+                                    }";
+
+                        list = JsonConvert.DeserializeObject<Message>(json);
+                        foreach(var men in list.Notification.ToArray())
+                        {
+                            Console.WriteLine(men.name);   
+                        }
+                       
+                    }
+                   
                 }
             }
+            catch (Exception ex) 
+            { 
+                DisplayException(ex); 
+                throw; 
+            } 
+            finally 
+            { 
+                Console.WriteLine("Press <Enter> to exit the program."); 
+                Console.ReadLine(); 
+            } 
         }
+
+        private static void DisplayException(Exception ex) 
+        { 
+            Console.WriteLine("The application terminated with an error."); 
+            Console.WriteLine(ex.Message); 
+            while (ex.InnerException != null) 
+            { 
+                Console.WriteLine("\t* {0}", ex.InnerException.Message); 
+                ex = ex.InnerException; 
+            } 
+        } 
 
         async static void GetRequest(string url)
         {
